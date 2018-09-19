@@ -113,7 +113,7 @@ $.ajax({
   // you will trigger a preflight request.
   contentType: 'text/plain',
 
-  crossDomain: true,
+  crossDomain: false,
 
   xhrFields: {
     // The 'xhrFields' property sets additional fields on the XMLHttpRequest.
