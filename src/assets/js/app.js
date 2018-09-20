@@ -3,10 +3,10 @@ import whatInput from 'what-input';
 
 window.$ = $;
 
-import Foundation from 'foundation-sites';
+//import Foundation from 'foundation-sites';
 // If you want to pick and choose which modules to include, comment out the above and uncomment
 // the line below
-//import './lib/foundation-explicit-pieces';
+import './lib/foundation-explicit-pieces';
 
 import 'tablesaw/dist/tablesaw.jquery';
 import libs from './lib/dependancies';
@@ -95,52 +95,75 @@ $('[data-app-dashboard-toggle-shrink]').on('click', function(e) {
   $(this).parents('.app-dashboard').toggleClass('shrink-medium').toggleClass('shrink-large');
 });
 
-
+// ajax to determine the country and cities in that country
 $.ajax({
-
-  // The 'type' property sets the HTTP method.
-  // A value of 'PUT' or 'DELETE' will trigger a preflight request.
   type: 'GET',
-
-  // The URL to make the request to.
-  url: 'https://api.meetup.com/find/upcoming_events?photo-host=public&sig_id=211970796&sig=e6635c2196d5c8f09a5e9b7195eb4e0c6e08feca',
-
-  // The 'contentType' property sets the 'Content-Type' header.
-  // The JQuery default for this property is
-  // 'application/x-www-form-urlencoded; charset=UTF-8', which does not trigger
-  // a preflight. If you set this value to anything other than
-  // application/x-www-form-urlencoded, multipart/form-data, or text/plain,
-  // you will trigger a preflight request.
+  url: 'https://api.meetup.com/2/cities?&sign=true&photo-host=public&country=rs',
   contentType: 'text/plain',
 
-  crossDomain: false,
+  crossDomain: true,
+  jsonpCallback: 'logResults',
+  dataType: 'jsonp',
 
   xhrFields: {
-    // The 'xhrFields' property sets additional fields on the XMLHttpRequest.
-    // This can be used to set the 'withCredentials' property.
-    // Set the value to 'true' if you'd like to pass cookies to the server.
-    // If this is enabled, your server must respond with the header
-    // 'Access-Control-Allow-Credentials: true'.
-    withCredentials: true
+    withCredentials: false
   },
 
-  headers: {
-    // Set any custom headers here.
-    // If you set any non-simple headers, your server must include these
-    // headers in the 'Access-Control-Allow-Headers' response header.
+  success: function(response) {
+    logResults(response);
+
+    $('.tabs-title').click(function(){
+      var tabClicked = $(this).children('a').text();
+      var tabHash = $(this).children('a').attr('href');
+
+      $.ajax({
+        type: 'GET',
+        url: 'https://api.meetup.com/find/upcoming_events?photo-host=public&radius=100&sig_id=211970796&sig=e6635c2196d5c8f09a5e9b7195eb4e0c6e08feca',
+        contentType: 'text/plain',
+        dataType: 'jsonp',
+
+        success: function(result) {
+          var cevent = result.data.events;
+          var arrc = new Array();
+          for (var i in cevent){
+            if(result.data.events[i].hasOwnProperty('venue')){
+              if( tabClicked == result.data.events[i].venue.city ){
+                arrc.push(result.data.events[i]);
+              }
+            }
+          }
+
+          for(var i in arrc){
+            $(tabHash).append('<div>'+ arrc[i].description +'</div>');
+          }
+        },
+        error: function(result) {
+
+        }
+      });
+    });
+    
   },
 
-  success: function() {
-    var data = JSON.parse(this.response);
-    console.log(data);
-    // Here's where you handle a successful response.
-    cons
-  },
-
-  error: function() {
-    // Here's where you handle an error response.
-    // Note that if the error was due to a CORS issue,
-    // this function will still fire, but there won't be any additional
-    // information about the error.
+  error: function(response) {
+    alert(response.staus);
   }
 });
+
+// reinit the tabs
+var elem = new Foundation.Tabs($('#cities-tabs'));
+
+// function that collects all cities in Serbia
+function logResults(data){
+  var cities = data.results;
+  
+  for(var i in cities){
+    var cityHash = 'city' + i;
+
+    $('#cities-tabs').append('<li class="tabs-title"><a href="#'+ cityHash +'">'+ cities[i].city +'</a></li>');
+    $('#cityContent').append('<div class="tabs-panel" id="' + cityHash + '">'+
+                              '<h1>'+ cities[i].city +'</h1>'+
+                              '</div>');
+    elem = new Foundation.Tabs($('#cities-tabs'));
+  }
+};

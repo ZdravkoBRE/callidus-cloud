@@ -75,3 +75,7 @@
 @import 'components/navigation/main-nav';
 
 @import 'components/footer';
+
+.app-dashboard-sidebar{
+    .app-dashboard-sidebar-inner{height: calc(100% - 48px);}
+}
