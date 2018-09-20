@@ -132,9 +132,13 @@ $.ajax({
               }
             }
           }
-
+          
+          console.log(arrc);
           for(var i in arrc){
-            $(tabHash).append('<div>'+ arrc[i].description +'</div>');
+            $(tabHash).append('<div class="content_event">'+ 
+                              '<h2>' + arrc[i].name + '</h2>'+
+                              '<div class="inner_block">' + arrc[i].description +'</div>'+
+                              '</div>');
           }
         },
         error: function(result) {

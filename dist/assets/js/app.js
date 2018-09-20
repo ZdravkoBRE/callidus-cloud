@@ -14703,8 +14703,9 @@ _jquery2.default.ajax({
             }
           }
 
+          console.log(arrc);
           for (var i in arrc) {
-            (0, _jquery2.default)(tabHash).append('<div>' + arrc[i].description + '</div>');
+            (0, _jquery2.default)(tabHash).append('<div class="content_event">' + '<h2>' + arrc[i].name + '</h2>' + '<div class="inner_block">' + arrc[i].description + '</div>' + '</div>');
           }
         },
         error: function error(result) {}
